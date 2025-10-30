@@ -1,58 +1,27 @@
 import React, { useState } from "react";
 import "../App.css"; // reuse your existing dark theme styles
+import { makeEmptyBoard, makeMove, checkWin } from "../logic/TTT";
 
 export default function TicTacToe({ onBack }) {
-  const [board, setBoard] = useState([
-    ["-", "-", "-"],
-    ["-", "-", "-"],
-    ["-", "-", "-"],
-  ]);
+  const [board, setBoard] = useState(makeEmptyBoard());
   const [currentPlayer, setCurrentPlayer] = useState("X");
   const [winner, setWinner] = useState(null);
-  const [loading, setLoading] = useState(false);
+
 
   async function handleClick(pos) {
-    if (winner || loading) return;
-    setLoading(true);
+    if (winner || board[pos] !== "-") return;
 
-    try {
-      const response = await fetch("http://localhost:5050/api/tictactoe/move", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pos }),
-      });
-      const data = await response.json();
-      if (data.error) {
-        console.error(data.error);
-        return;
-      }
-      setBoard([
-        data.board.slice(0, 3),
-        data.board.slice(3, 6),
-        data.board.slice(6, 9),
-      ]);
-      setWinner(data.winner);
-      setCurrentPlayer(data.currentPlayer);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
+    const { newBoard, nextPlayer, winner: w } = makeMove(board, pos, currentPlayer);
+    setBoard(newBoard);
+    setCurrentPlayer(nextPlayer);
+    setWinner(w);
+
   }
 
+
   async function resetBoard() {
-    try {
-      await fetch("http://localhost:5050/api/tictactoe/reset", {
-        method: "POST",
-      });
-    } catch (err) {
-      console.error("Error resetting:", err);
-    }
-    setBoard([
-      ["-", "-", "-"],
-      ["-", "-", "-"],
-      ["-", "-", "-"],
-    ]);
+
+    setBoard(makeEmptyBoard());
     setWinner(null);
     setCurrentPlayer("X");
   }
@@ -69,24 +38,23 @@ export default function TicTacToe({ onBack }) {
       ) : (
         <h2 className="subtitle">Player: {currentPlayer}</h2>
       )}
-
       <div className="board">
-        {board.map((row, rIndex) =>
-          row.map((cell, cIndex) => {
-            const pos = rIndex * 3 + cIndex;
-            return (
-              <button
-                key={pos}
-                onClick={() => handleClick(pos)}
-                className={`cell ${
-                  cell === "X" ? "x-cell" : cell === "O" ? "o-cell" : ""
-                }`}
-              >
-                {cell === "-" ? "" : cell}
-              </button>
-            );
-          })
-        )}
+        {Array.from({ length: 3 }, (_, r) => (
+          <div key={r} className="row">
+            {board.slice(r * 3, r * 3 + 3).map((cell, c) => {
+              const pos = r * 3 + c;
+              return (
+                <button
+                  key={pos}
+                  onClick={() => handleClick(pos)}
+                  className={`cell ${cell === "X" ? "x-cell" : cell === "O" ? "o-cell" : ""}`}
+                >
+                  {cell === "-" ? "" : cell}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       <button onClick={resetBoard} className="reset-btn">
