@@ -1,52 +1,26 @@
 import React, { useState } from "react";
 import "../App.css";
+import { makeEmptyBoard, makeMove } from "../logic/Connect4Logic";
 
 export default function Connect4({ onBack }) {
-  const [board, setBoard] = useState(
-    Array.from({ length: 6 }, () => Array(7).fill("-"))
-  );
+  const [board, setBoard] = useState(makeEmptyBoard());
   const [currentPlayer, setCurrentPlayer] = useState("X");
   const [winner, setWinner] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  async function handleMove(col) {
-    if (winner || loading) return;
-    setLoading(true);
+  async function handleMove(pos) {
+    if (winner || board[0][pos] !== "-") return;
 
-    try {
-      const response = await fetch("http://localhost:5050/api/connect4/move", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ col }), // backend expects column index
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        console.error(data.error);
-        return;
-      }
-
-      setBoard(data.board); // board is a list of lists
-      setCurrentPlayer(data.currentPlayer);
-      setWinner(data.winner);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
+    const { nextState: newBoard, nextPlayer: player , winner: w } = makeMove(board, pos, currentPlayer);
+  
+    setBoard(newBoard);
+    setCurrentPlayer(player);
+    setWinner(w);
   }
 
   async function resetBoard() {
-    try {
-      await fetch("http://localhost:5050/api/connect4/reset", { method: "POST" });
-    } catch (err) {
-      console.error("Error resetting:", err);
-    }
-
-    setBoard(Array.from({ length: 6 }, () => Array(7).fill("-")));
-    setCurrentPlayer("X");
+    setBoard(makeEmptyBoard());
     setWinner(null);
+    setCurrentPlayer("X");
   }
 
   return (
