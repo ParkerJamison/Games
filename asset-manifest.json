@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/BoardGames.github.io/static/css/main.b434a4df.css",
-    "main.js": "/BoardGames.github.io/static/js/main.00439f21.js",
+    "main.js": "/BoardGames.github.io/static/js/main.21d8000b.js",
     "index.html": "/BoardGames.github.io/index.html",
     "main.b434a4df.css.map": "/BoardGames.github.io/static/css/main.b434a4df.css.map",
-    "main.00439f21.js.map": "/BoardGames.github.io/static/js/main.00439f21.js.map"
+    "main.21d8000b.js.map": "/BoardGames.github.io/static/js/main.21d8000b.js.map"
   },
   "entrypoints": [
     "static/css/main.b434a4df.css",
-    "static/js/main.00439f21.js"
+    "static/js/main.21d8000b.js"
   ]
 }
